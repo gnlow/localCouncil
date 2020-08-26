@@ -43,7 +43,20 @@ const puppeteer = require("puppeteer");
         await page.click("#searchBtn")
         await page.waitForNavigation()
         const table = await page.$$eval("table tr", rows => {
-            const tableToObj = ([district, party, number, image, name, gender, birth, education, history, byElectionDate, promise]) => ({district, party, number, image, name, gender, birth, education, history, byElectionDate, promise})
+            const tableToObj = ([district, party, number, image, name, gender, birth, education, history, byElectionDate, promise]) => ({
+                district, 
+                party, 
+                number, 
+                //image, 
+                name: name?.match(/^(.*)\n\((.*)\)$/)[1], 
+                hanjaName: name?.match(/^(.*)\n\((.*)\)$/)[2], 
+                gender, 
+                birth, 
+                education, 
+                history, 
+                byElectionDate, 
+                //promise
+            })
 
             return Array.from(rows, row => {
                 const columns = row.querySelectorAll("td")
@@ -60,6 +73,6 @@ const puppeteer = require("puppeteer");
             ), readTable
         ), readTable
     )(0)
-    
+
     await browser.close()
 })()
