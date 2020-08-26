@@ -13,14 +13,14 @@ const puppeteer = require("puppeteer");
     const getOptions = async selector => await page.evaluate(dropdown => {
         return [...dropdown.options].map(x => [x.text, x.value])
     }, await page.$(selector))
-    const isVisible = selector => async () => await page.evaluate(data => data.style.display, await page.$(selector)) != "none"
+    const isVisible = selector => async () => await page.$eval(selector, data => data.style.display) != "none"
     let logContext = []
     const eachOption = (selector, condition, callback) => async (logDepth) => {
         if (await condition()) {
             const options = await getOptions(selector)
             for await (const [text, value] of options.slice(1)) {
                 logContext[logDepth] = text
-                console.log(logContext.slice(0, logDepth + 1).join(" > "))
+                console.log(`[select] ${logContext.slice(0, logDepth + 1).join(" > ")}`)
                 await page.select(selector, value)
                 await page.waitFor(1000)
                 await callback?.(logDepth + 1)
@@ -36,7 +36,11 @@ const puppeteer = require("puppeteer");
 
     await eachOption("#electionCode", isVisible("#spanElectionCode"),
         eachOption("#cityCode", isVisible("#spanCityCode"),
-            eachOption("#townCode", isVisible("#spanTownCode"))
+            eachOption("#townCode", isVisible("#spanTownCode"),
+                async () => {
+
+                }
+            )
         )
     )(0)
     await browser.close()
