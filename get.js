@@ -15,7 +15,7 @@ const puppeteer = require("puppeteer");
     }, await page.$(selector))
     const isVisible = selector => async () => await page.$eval(selector, data => data.style.display) != "none"
     let logContext = []
-    const eachOption = (selector, condition, callback) => async (logDepth) => {
+    const eachOption = (selector, condition, callback, fail) => async (logDepth) => {
         if (await condition()) {
             const options = await getOptions(selector)
             for await (const [text, value] of options.slice(1)) {
@@ -25,6 +25,8 @@ const puppeteer = require("puppeteer");
                 await page.waitFor(1000)
                 await callback?.(logDepth + 1)
             }
+        } else {
+            await fail?.()
         }
     }
 
@@ -34,14 +36,23 @@ const puppeteer = require("puppeteer");
     await page.select("#electionName", "20180613")
     await page.waitFor(1000)
 
+    const readTable = async () => {
+        await page.click("#searchBtn")
+        await page.waitForNavigation()
+        const table = await page.$$eval("table tr", rows => {
+            return Array.from(rows, row => {
+                const columns = row.querySelectorAll("td")
+                return Array.from(columns, column => column.innerText)
+            })
+        })
+        console.log(table[1][4])
+    }
     await eachOption("#electionCode", isVisible("#spanElectionCode"),
         eachOption("#cityCode", isVisible("#spanCityCode"),
             eachOption("#townCode", isVisible("#spanTownCode"),
-                async () => {
-
-                }
-            )
-        )
+                readTable, readTable
+            ), readTable
+        ), readTable
     )(0)
     await browser.close()
 })()
