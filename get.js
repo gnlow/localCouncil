@@ -53,7 +53,7 @@ const puppeteer = require("puppeteer");
                 district, 
                 party, 
                 number, 
-                //image, 
+                image, 
                 name: name?.match(/^(.*)\n\((.*)\)$/)[1], 
                 hanjaName: name?.match(/^(.*)\n\((.*)\)$/)[2], 
                 gender, 
@@ -61,12 +61,25 @@ const puppeteer = require("puppeteer");
                 education, 
                 history, 
                 byElectionDate, 
-                //promise
+                promise
             })
 
             return Array.from(rows, row => {
                 const columns = row.querySelectorAll("td")
-                return tableToObj(Array.from(columns, column => column.innerText))
+                return tableToObj(Array.from(columns, column => {
+                    if(column.children[0] == undefined) {
+                        return column.innerText
+                    } else if (column.children[0].tagName == "BR") {
+                        return column.innerText
+                    } else if (column.children[0].tagName == "INPUT") {
+                        return column.children[0].src
+                    } else if (column.children[0].tagName == "A") {
+                        const promises = {};
+                        [...column.querySelectorAll("a")]
+                        .forEach(x => promises[x.innerText] = x.href.match(/javascript:popupPdfViewer\('(.*)'\);/)[1])
+                        return promises
+                    }
+                }))
             })
         })
         stream.write(JSON.stringify({
