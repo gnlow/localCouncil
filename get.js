@@ -13,8 +13,11 @@ const puppeteer = require("puppeteer");
     const getOptions = async selector => await page.evaluate(dropdown => {
         return [...dropdown.options].map(x => [x.text, x.value])
     }, await page.$(selector))
+
     const isVisible = selector => async () => await page.$eval(selector, data => data.style.display) != "none"
+
     let logContext = []
+
     const eachOption = (selector, condition, callback, fail) => async (logDepth) => {
         if (await condition()) {
             const options = await getOptions(selector)
@@ -49,6 +52,7 @@ const puppeteer = require("puppeteer");
         })
         console.log(table[1])
     }
+
     await eachOption("#electionCode", isVisible("#spanElectionCode"),
         eachOption("#cityCode", isVisible("#spanCityCode"),
             eachOption("#townCode", isVisible("#spanTownCode"),
@@ -56,5 +60,6 @@ const puppeteer = require("puppeteer");
             ), readTable
         ), readTable
     )(0)
+    
     await browser.close()
 })()
