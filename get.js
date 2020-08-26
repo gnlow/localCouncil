@@ -40,12 +40,14 @@ const puppeteer = require("puppeteer");
         await page.click("#searchBtn")
         await page.waitForNavigation()
         const table = await page.$$eval("table tr", rows => {
+            const tableToObj = ([district, party, number, image, name, gender, birth, education, history, byElectionDate, promise]) => ({district, party, number, image, name, gender, birth, education, history, byElectionDate, promise})
+
             return Array.from(rows, row => {
                 const columns = row.querySelectorAll("td")
-                return Array.from(columns, column => column.innerText)
+                return tableToObj(Array.from(columns, column => column.innerText))
             })
         })
-        console.log(table[1][4])
+        console.log(table[1])
     }
     await eachOption("#electionCode", isVisible("#spanElectionCode"),
         eachOption("#cityCode", isVisible("#spanCityCode"),
