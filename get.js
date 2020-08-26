@@ -1,4 +1,4 @@
-const {creqteWriteStream, createWriteStream} = require("fs")
+const {createWriteStream} = require("fs")
 
 const puppeteer = require("puppeteer");
 
@@ -41,18 +41,15 @@ const puppeteer = require("puppeteer");
     await page.select("#electionName", "20180613")
     await page.waitFor(1000)
 
-    const {write, end} = createWriteStream("data.json")
-    write("[")
+    const stream = createWriteStream("data.json")
+    stream.write("[")
 
     const readTable = async () => {
+        const navigationPromise = page.waitForNavigation()
         await page.click("#searchBtn")
-        await page.waitForNavigation()
+        await navigationPromise
         const table = await page.$$eval("table tr", rows => {
             const tableToObj = ([district, party, number, image, name, gender, birth, education, history, byElectionDate, promise]) => ({
-                election: logContext[0],
-                city: logContext[1],
-                town: logContext[2],
-
                 district, 
                 party, 
                 number, 
@@ -72,8 +69,13 @@ const puppeteer = require("puppeteer");
                 return tableToObj(Array.from(columns, column => column.innerText))
             })
         })
-        write(JSON.stringify(table))
-        write(",")
+        stream.write(JSON.stringify({
+            election: logContext[0],
+            city: logContext[1],
+            town: logContext[2],
+            data: table
+        }))
+        stream.write(",")
     }
 
     await eachOption("#electionCode", isVisible("#spanElectionCode"),
@@ -84,8 +86,8 @@ const puppeteer = require("puppeteer");
         ), readTable
     )(0)
 
-    write("]")
-    end()
+    stream.write("]")
+    stream.end()
     
     await browser.close()
 })()
