@@ -1,4 +1,5 @@
 const data = require("./data.json")
+const dataPr = require("./data_pr.json")
 const {groupBy} = require("lodash")
 
 const highSimple = name => name?.replace(/(.*?)(도|광역시|특별시|특별자치시|특별자치도)/, "$1").replace(/(.).(.)/, "$1$2")
@@ -13,13 +14,19 @@ const addName = (data) => {
     if (!sameName[data.name]) {
         sameName[data.name] = []
     }
+    if (sameName[data.name].includes(nameCode)) {
+        console.log("WARN!!!!!!!!!!!!!!")
+        const simpl = ({birth, local, type}) => `${nameCode}: ${birth} ${local} ${type}`
+        console.log(simpl(names[nameCode]))
+        console.log(simpl(data))
+    }
     sameName[data.name].push(nameCode)
     if (sameName[data.name].length > 1) {
-        console.log(sameName[data.name])
+        // console.log(sameName[data.name])
     }
     names[nameCode] = data
     if (names[data.name]) {
-        console.log(sameName[data.name])
+        // console.log(sameName[data.name])
     }
 }
 
@@ -64,6 +71,24 @@ grouped["구·시·군의회의원선거"].forEach(({data, city, town}) => data.
     x.local = localName
     x.type = "기초의원"
     result[localName].member.push(x)
+
+    addName(x)
+}))
+dataPr[0].data.slice(1).forEach(data => {
+    data.local = highSimple(data.district)
+    data.district = "비례대표"
+    data.type = "광역의원"
+    data.birth = data.birth.substring(0, 10)
+    result[data.local].member.push(data)
+
+    addName(data)
+})
+dataPr.slice(1).forEach(({data, city}) => data.slice(1).forEach(x => {
+    x.local = `${highSimple(city)}_${x.district.replace(/(.*)(시|군|구)/, "$1")}`
+    x.district = "비례대표"
+    x.type = "기초의원"
+    x.birth = x.birth.substring(0, 10)
+    result[x.local].member.push(x)
 
     addName(x)
 }))
