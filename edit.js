@@ -82,3 +82,9 @@ dataPr.slice(1).forEach(({data, city}) => data.slice(1).forEach(x => {
     x.birth = x.birth.substring(0, 10)
     result[x.local].member.push(addName(x))
 }))
+
+const fs = require("fs")
+fs.writeFile("edited.json", JSON.stringify({
+    council: result,
+    member: names
+}), {}, () => console.log("Writed"))
