@@ -10,13 +10,13 @@ const sameName = {}
 const names = {}
 
 const addName = (data) => {
-    const nameCode = `${data.name}_${data.birth.substring(2, 4)}${data.birth.substring(5, 7)}`
+    const nameCode = `${data.name}_${data.birth.substring(2, 4)}${data.birth.substring(5, 7)}${data.birth.substring(8, 10)}`
     if (!sameName[data.name]) {
         sameName[data.name] = []
     }
     if (sameName[data.name].includes(nameCode)) {
-        console.log("WARN!!!!!!!!!!!!!!")
-        const simpl = ({birth, local, type}) => `${nameCode}: ${birth} ${local} ${type}`
+        console.log(nameCode)
+        const simpl = ({birth, local, type}) => `${birth} ${local} ${type}`
         console.log(simpl(names[nameCode]))
         console.log(simpl(data))
     }
@@ -93,4 +93,4 @@ dataPr.slice(1).forEach(({data, city}) => data.slice(1).forEach(x => {
     addName(x)
 }))
 //console.log(grouped["시·도의회의원선거"][0])
-//console.log(result["경기_수원"])
+console.log(Object.keys(names).length)
