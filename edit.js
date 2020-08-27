@@ -28,6 +28,7 @@ const addName = (data) => {
     if (names[data.name]) {
         // console.log(sameName[data.name])
     }
+    return nameCode
 }
 
 grouped["시·도지사선거"][0].data.slice(1).forEach(x => {
@@ -38,9 +39,7 @@ grouped["시·도지사선거"][0].data.slice(1).forEach(x => {
     delete x.district
     x.local = localName
     x.type = "광역자치단체장"
-    result[localName].head = x
-
-    addName(x)
+    result[localName].head = addName(x)
 })
 grouped["구·시·군의 장선거"].forEach(({data, city}) => data.slice(1).forEach(x => {
     const localName = `${highSimple(city)}_${x.district?.replace(/(.*)(시|군|구)/, "$1")}`
@@ -51,46 +50,35 @@ grouped["구·시·군의 장선거"].forEach(({data, city}) => data.slice(1).fo
     delete x.district
     x.local = localName
     x.type = "기초자치단체장"
-    result[localName].head = x
-
-    addName(x)
+    result[localName].head = addName(x)
 }))
 grouped["시·도의회의원선거"].forEach(({data, city, town}) => data.slice(1).forEach(x => {
     const highLocal = highSimple(city)
     const localName = `${highLocal}_${town?.replace(/(.{1,3})(시|군|구)((.*)구)?/, "$1")}`
     x.local = localName
     x.type = "광역의원"
-    result[highLocal].member.push(x)
-    result[localName]?.highMember?.push(x)
-
-    addName(x)
+    const nameCode = addName(x)
+    result[highLocal].member.push(nameCode)
+    result[localName]?.highMember?.push(nameCode)
 }))
 grouped["구·시·군의회의원선거"].forEach(({data, city, town}) => data.slice(1).forEach(x => {
     const highLocal = highSimple(city)
     const localName = `${highLocal}_${town?.replace(/(.{1,3})(시|군|구)((.*)구)?/, "$1")}`
     x.local = localName
     x.type = "기초의원"
-    result[localName].member.push(x)
-
-    addName(x)
+    result[localName].member.push(addName(x))
 }))
 dataPr[0].data.slice(1).forEach(data => {
     data.local = highSimple(data.district)
     data.district = "비례대표"
     data.type = "광역의원"
     data.birth = data.birth.substring(0, 10)
-    result[data.local].member.push(data)
-
-    addName(data)
+    result[data.local].member.push(addName(data))
 })
 dataPr.slice(1).forEach(({data, city}) => data.slice(1).forEach(x => {
     x.local = `${highSimple(city)}_${x.district.replace(/(.*)(시|군|구)/, "$1")}`
     x.district = "비례대표"
     x.type = "기초의원"
     x.birth = x.birth.substring(0, 10)
-    result[x.local].member.push(x)
-
-    addName(x)
+    result[x.local].member.push(addName(x))
 }))
-//console.log(grouped["시·도의회의원선거"][0])
-console.log(Object.keys(names).length)
