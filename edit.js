@@ -58,5 +58,14 @@ grouped["시·도의회의원선거"].forEach(({data, city, town}) => data.slice
 
     addName(x)
 }))
+grouped["구·시·군의회의원선거"].forEach(({data, city, town}) => data.slice(1).forEach(x => {
+    const highLocal = highSimple(city)
+    const localName = `${highLocal}_${town?.replace(/(.{1,3})(시|군|구)((.*)구)?/, "$1")}`
+    x.local = localName
+    x.type = "기초의원"
+    result[localName].member.push(x)
+
+    addName(x)
+}))
 //console.log(grouped["시·도의회의원선거"][0])
 //console.log(result["경기_수원"])
