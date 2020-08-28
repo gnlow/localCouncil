@@ -11,10 +11,17 @@ const cityList = ["서울", "부산", "대구", "인천", "광주", "대전", "�
 
 const highMember = Object.keys(data.member).map(name => data.member[name]).filter(({type}) => type == "광역의원")
 
-const x = mapValues(groupBy(highMember, "party"), members => citySort(mapValues(groupBy(members, member => member.local.substring(0, 2)), "length")))
+const x = mapValues(groupBy(highMember, ({party}) => {
+    return party
+        .replace("자유한국당", "미래통합당")
+        .replace("민주평화당", "민생당")
+        .replace("바른미래당", "민생당")
+}), members => citySort(mapValues(groupBy(members, member => {
+    return member.local.substring(0, 2)
+}), "length")))
 
 const table = new Table({
     head: ["지역", ...Object.keys(x)],
 })
-table.push(...Array(17).fill().map((n, i) => ({[cityList[i]]: Array(7).fill().map((m,j) => x[Object.keys(x)[j]][i])})))
+table.push(...Array(17).fill().map((n, i) => ({[cityList[i]]: Array(5).fill().map((m,j) => x[Object.keys(x)[j]][i])})))
 console.log(table.toString())
