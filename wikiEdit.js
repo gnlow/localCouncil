@@ -199,3 +199,7 @@ fs.writeFile("fixed.json", JSON.stringify({
     council: data.council,
     member: newMember
 }), {}, () => console.log("Writed"))
+fs.writeFile("mod.ts", "export default " + JSON.stringify({
+    council: data.council,
+    member: newMember
+}), {}, () => console.log("Writed"))
