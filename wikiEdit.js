@@ -71,6 +71,7 @@ ${district} ${name}
         if (target) {
             if (district == "비례대표" && name == "윤환") { //HARDCODING
                 data.member["윤환_0"] = {
+                    name: "윤환",
                     district: "비례대표",
                     party: "미래통합당",
                     image: "http://www.iyongin.or.kr/attach/member/CT_8/7f17589f9a834fcf9457f2342f9af827.jpg",
@@ -132,6 +133,7 @@ ${district} ${name}
                 break
             case "오희숙":
                 data.member["오희숙_650110"] = {
+                    name: "오희숙",
                     district: "비례대표",
                     party: "무소속",
                     image: "http://www.gongju.go.kr/thumbnail/lawmakerMng//lawm_202004010513001860.jpg",
@@ -154,6 +156,7 @@ ${district} ${name}
                 break
             case "김민규":
                 data.member["김민규_0"] = {
+                    name: "김민규",
                     district: "비례대표",
                     party: "더불어민주당",
                     image: "https://council.jinan.go.kr/MGMT/Files/MemberPhoto/8/8050.jpg",
@@ -199,7 +202,38 @@ fs.writeFile("fixed.json", JSON.stringify({
     council: data.council,
     member: newMember
 }), {}, () => console.log("Writed"))
-fs.writeFile("mod.ts", "export default " + JSON.stringify({
+fs.writeFile("mod.ts", 
+`interface Person {
+    district?: string,
+    party: string,
+    number?: string,
+    image?: string,
+    name: string,
+    hanjaName?: string,
+    gender: "남" | "여",
+    birth: string | null,
+    education?: string,
+    history?: string,
+    byElectionDate?: string,
+    promise?: {
+        [promiseType: string]: string
+    } | ""
+}
+
+export default 
+<{
+    council: {
+        [local: string]: {
+            member: string[],
+            head: string,
+            highMember?: string[]
+        }
+    },
+    member: {
+        [personCode: string]: Person
+    }    
+}>
+` + JSON.stringify({
     council: data.council,
     member: newMember
 }), {}, () => console.log("Writed"))
