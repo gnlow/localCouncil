@@ -30,31 +30,39 @@ Object.keys(data.member).forEach(x => {
 let checkCount = 0
 
 let target
-allData.slice(0).forEach(([district, name, party, hanjaName]) => {
+allData.slice(0).forEach(([district, name, party, hanjaName], ii, ll) => {
     if (names[name]) {
         if (names[name].filter(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표")).length > 1) {
-            const possibles = names[name].filter(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표")).filter(q => data.member[q].hanjaName == hanjaName)
-            if (possivles.length == 1) {
+            const possibles = names[name].filter(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표"))
+            const hanjaPos = possibles.filter(q => data.member[q].hanjaName == hanjaName)
+            if (hanjaPos.length == 1) {
                 target = data.member[names[name].filter(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표")).find(q => data.member[q].hanjaName == hanjaName)]
                 
                 //console.log("한자이름으로 구별함", district, name, hanjaName, target,  "\n")
-            } else if (possibles.length > 1) {
+            } else if (possibles.find(x => data.member[x].local == target.local)) {
+                target = data.member[possibles.find(x => data.member[x].local == target.local)]
+            } else {
                 console.log(
 `
 [warn] 동명이인 목록에서 일치하는 선거구가 여러개임.
 ${district} ${name} 
-이전 항목: ${target?.local} ${target?.name}
+이전 항목: ${ll[ii-1][0]} ${ll[ii-1][1]} -> ${target?.local} ${target?.name}
 동명이인 목록: ${possibles.map(x => data.member[x].local).join(" | ")}`
                 )
-            } else {
-                console.log(
-                    `
-[warn] 동명이인 목록에서 일치하는 선거구가 여러개임.
-${district} ${name} 
-이전 항목: ${target?.local} ${target?.name}
-동명이인 목록: ${possibles.map(x => data.member[x].local).join(" | ")}`
-                                    )
+                const hardTarget = index => {
+                    target = data.member[possibles[index]]
+                    console.log(`    => resolved_HARDCODING ${target.local}`)
+                }
+                switch (name) {
+                    case "김화숙":
+                        hardTarget(0)
+                        break
+                    case "강민숙":
+                        hardTarget(0)
+                        break
+                }
             }
+            
         } else {
             target = data.member[names[name].filter(x=>data.member[x].district).length == 1 ? names[name].filter(x=>data.member[x].district)[0] : names[name].find(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표"))]
         }
@@ -173,8 +181,9 @@ ${district} ${name}
 })
 
 console.log(Object.keys(data.member).filter(x => data.member[x].type == "광역의원").length)
-console.log(allData.length)
 console.log(Object.keys(data.member).filter(x => data.member[x].type == "기초의원").length)
 
-console.log(Object.keys(data.member).filter(x => !data.member[x].checked && (data.member[x].type == "기초의원" || data.member[x].type == "광역의원")).map(x => data.member[x]))
-console.log(checkCount)
+const newData = Object.keys(data.member).filter(x => !(!data.member[x].checked && (data.member[x].type == "기초의원" || data.member[x].type == "광역의원"))).map(x => data.member[x])
+
+console.log(Object.keys(newData).filter(x => newData[x].type == "광역의원").length)
+console.log(Object.keys(newData).filter(x => newData[x].type == "기초의원").length)
