@@ -7,7 +7,7 @@ const high = wikiHigh.split("\n").map(x => x.split("\t"))
 let prev
 let isFirstEmpty = true
 
-const fix = (local, originCode, newCode) => data.council[local].member[data.council[local].findIndex(x => x.startsWith(originCode))] = newCode
+const fix = (local, originCode, newCode) => data.council[local].member[data.council[local].member.findIndex(x => x.startsWith(originCode))] = newCode
 
 high.filter(x => x[1]).forEach(([district, name, party], i, l) => {
     if (district == "") {
@@ -188,7 +188,14 @@ ${district} ${name}
 console.log(Object.keys(data.member).filter(x => data.member[x].type == "광역의원").length)
 console.log(Object.keys(data.member).filter(x => data.member[x].type == "기초의원").length)
 
-const newData = Object.keys(data.member).filter(x => !(!data.member[x].checked && (data.member[x].type == "기초의원" || data.member[x].type == "광역의원"))).map(x => data.member[x])
+let newMember = {}
+Object.keys(data.member).filter(x => !(!data.member[x].checked && (data.member[x].type == "기초의원" || data.member[x].type == "광역의원"))).forEach(x => newMember[x] = data.member[x])
 
-console.log(Object.keys(newData).filter(x => newData[x].type == "광역의원").length)
-console.log(Object.keys(newData).filter(x => newData[x].type == "기초의원").length)
+console.log(Object.keys(newMember).filter(x => newMember[x].type == "광역의원").length)
+console.log(Object.keys(newMember).filter(x => newMember[x].type == "기초의원").length)
+
+const fs = require("fs")
+fs.writeFile("fixed.json", JSON.stringify({
+    council: data.council,
+    member: newMember
+}), {}, () => console.log("Writed"))
