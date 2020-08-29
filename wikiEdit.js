@@ -21,16 +21,43 @@ high.filter(x => x[1]).forEach(([district, name, party], i, l) => {
         isFirstEmpty = true
     }
 })
-const allData = high.filter(x => x[0]).concat(wikiLow.map(([district, name, party]) => [district, name.replace(/(.*)\(.*\).*/, "$1"), party]))
+const allData = high.filter(x => x[0]).concat(wikiLow.map(([district, name, party]) => [district, name.replace(/(.*)\(.*\).*/, "$1"), party, name.replace(/(.*)\((.*)\).*/, "$2")]))
 
 const names = {}
 Object.keys(data.member).forEach(x => {
     names[x.split("_")[0]]?.push(x) || (names[x.split("_")[0]] = [x])
 })
 let checkCount = 0
-allData.slice(0).forEach(([district, name, party]) => {
+
+let target
+allData.slice(0).forEach(([district, name, party, hanjaName]) => {
     if (names[name]) {
-        const target = data.member[names[name].filter(x=>data.member[x].district).length == 1 ? names[name].filter(x=>data.member[x].district)[0] : names[name].find(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표"))]
+        if (names[name].filter(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표")).length > 1) {
+            const possibles = names[name].filter(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표")).filter(q => data.member[q].hanjaName == hanjaName)
+            if (possivles.length == 1) {
+                target = data.member[names[name].filter(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표")).find(q => data.member[q].hanjaName == hanjaName)]
+                
+                //console.log("한자이름으로 구별함", district, name, hanjaName, target,  "\n")
+            } else if (possibles.length > 1) {
+                console.log(
+`
+[warn] 동명이인 목록에서 일치하는 선거구가 여러개임.
+${district} ${name} 
+이전 항목: ${target?.local} ${target?.name}
+동명이인 목록: ${possibles.map(x => data.member[x].local).join(" | ")}`
+                )
+            } else {
+                console.log(
+                    `
+[warn] 동명이인 목록에서 일치하는 선거구가 여러개임.
+${district} ${name} 
+이전 항목: ${target?.local} ${target?.name}
+동명이인 목록: ${possibles.map(x => data.member[x].local).join(" | ")}`
+                                    )
+            }
+        } else {
+            target = data.member[names[name].filter(x=>data.member[x].district).length == 1 ? names[name].filter(x=>data.member[x].district)[0] : names[name].find(n => data.member[n].district == district.replace(" ", "").replace(/.*비례대표/, "비례대표"))]
+        }
         if (target) {
             if (district == "비례대표" && name == "윤환") { //HARDCODING
                 data.member["윤환_0"] = {
