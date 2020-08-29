@@ -7,6 +7,8 @@ const high = wikiHigh.split("\n").map(x => x.split("\t"))
 let prev
 let isFirstEmpty = true
 
+const fix = (local, originCode, newCode) => data.council[local].member[data.council[local].findIndex(x => x.startsWith(originCode))] = newCode
+
 high.filter(x => x[1]).forEach(([district, name, party], i, l) => {
     if (district == "") {
         if (isFirstEmpty) {
@@ -86,6 +88,7 @@ ${district} ${name}
                     type: "기초의원",
                     checked: true
                 }
+                fix("경기_용인", "이선화", "윤환_0")
             } else {
                 target.party = party
                 target.checked = true
@@ -146,6 +149,7 @@ ${district} ${name}
                     type: "기초의원",
                     checked: true
                 }
+                fix("충남_공주", "박석순", "오희숙_650110")
                 console.log(`    => resolved_HARDCODING added`)
                 break
             case "김민규":
@@ -174,6 +178,7 @@ ${district} ${name}
                     type: "기초의원",
                     checked: true
                 }
+                fix("전북_진안", "강은희", "김민규_0")
                 console.log(`    => resolved_HARDCODING added`)
                 break
         }
